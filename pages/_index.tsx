@@ -1,19 +1,19 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { utils } from "ethers";
 
-import TokenContract, {
-    buildGreeterContract,
-  } from "../blockchain/greeterContract";
+import TokenContract, { buildMfpContract } from "../blockchain/mfpContract";
 import initializeBlockchain from "../blockchain/initializeBlockchain";
 
 function Home() {
   const [currentAccount, setCurrentAccount] = useState<string | null>(null);
   const [provider, setProvider] = useState<any>(null);
-  const [TokenContract, setTokenContract] = useState<TokenContract | null>(null);
-  const [balance, setBalance] = useState<string>("")
-/* 
+  const [TokenContract, setTokenContract] = useState<TokenContract | null>(
+    null
+  );
+  const [balance, setBalance] = useState<string>("");
+  /* 
   useEffect(() => {
     initializeBlockchain().then(({provider, currentAccount}) => {
       setCurrentAccount(currentAccount);
@@ -42,14 +42,12 @@ function Home() {
 
       <header>
         <nav>
-          {currentAccount ? <p>My account Address: {currentAccount}</p> : null }
+          {currentAccount ? <p>My account Address: {currentAccount}</p> : null}
         </nav>
       </header>
 
       <main>
-        <h1>
-          Welcome to our Starter
-        </h1>
+        <h1>Welcome to our Starter</h1>
 
         {/* {isConnected && (
           <section>

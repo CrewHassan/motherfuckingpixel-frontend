@@ -4,6 +4,10 @@ module.exports = {
   darkMode: false,
   theme: {
     extend: {},
+    fontFamily: {
+      pixel: ['"Press Start 2P"'],
+      sans: ["Nunito"],
+     }
   },
   variants: {
     extend: {},
