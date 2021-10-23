@@ -1,16 +1,12 @@
-import { Contract, providers } from "ethers";
+import { Contract, ethers, providers } from "ethers";
 
 const ABI = [
-  /* "function balance() public view returns (uint256)", */
-  "function getTilesColor(uint8 page) public view returns (TileColor[512] memory)"
-  // "function tokensOfOwner(address owner) external view returns (uint256[] memory ownerTokens)",
-  // "function tokenURI(uint256 tokenId) public view virtual override returns (string memory)",
-  // "function burn(uint256 tokenId) public",
-  // "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+   "function getTilesColor() public view returns (tuple(uint8 r, uint8 g, uint8 b)[625] tiles)",
+   "function getTilesInfo() public view returns (tuple(address payable _owner, uint256 _currentValue, uint256 _paidValue)[625] tileInfo)",
+   "function paint(uint16 coordinate, uint8 r, uint8 g, uint8 b) public payable"  
 ];
 
 export default class GreeterContract {
-  /* private writeContract: Contract; */
   private contract: Contract;
   private address: string;
 
@@ -18,51 +14,36 @@ export default class GreeterContract {
     this.contract = new Contract(
       process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
       ABI,
-      provider.getSigner()
+      provider.getSigner(),
     );
-    /* this.readContract = new Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
-      ABI,
-      provider
-    ); */
+  
     this.address = address;
   }
 
-  /* async balance() {
-    return this.writeContract.balance();
-  } */
+  async getTiles() {
+    const pages = await Promise.all([
+      this.contract.getTilesColor(),
+      this.contract.getTilesInfo(),
+    ]);
 
-  async getTiles(page: number) {
-    return this.contract.getTilesColor(1);
+    const allInfo = pages[1];
+
+    return pages[0].map((item: any, index: number) => ({
+      ...item,
+      ...allInfo[index],
+      owner: allInfo[index][0],
+      currentValue: Number(ethers.utils.formatEther(allInfo[index]._currentValue._hex)),
+      paidValue: Number(ethers.utils.formatEther(allInfo[index]._paidValue._hex)),
+    }))
   }
 
-  // async mint(ipfsUrl: string) {
-  //   const transaction: providers.TransactionResponse =
-  //     await this.writeContract.mint(this.address, ipfsUrl);
+  async paintPixel(coord: number, r: number, g: number, b: number, offer: number) {
+    const op = await this.contract.paint(coord, r, g, b, {
+      value: ethers.utils.parseEther(offer.toString())
+    });
 
-  //   await transaction.wait(1);
-  // }
-
-  // async burn(tokenId: string) {
-  //   const transaction: providers.TransactionResponse =
-  //     await this.writeContract.burn(tokenId);
-
-  //   await transaction.wait(1);
-  // }
-
-  // async tokensOfOwner(): Promise<string[]> {
-  //   const tokenIdsBigNumber = await this.readContract.tokensOfOwner(
-  //     this.address
-  //   );
-
-  //   return tokenIdsBigNumber.map((tokenIdBigNumber) =>
-  //     tokenIdBigNumber.toString()
-  //   );
-  // }
-
-  // tokenURI(tokenId: string): Promise<string> {
-  //   return this.readContract.tokenURI(tokenId);
-  // }
+    console.log(op);
+  }
 }
 
 export function buildGreeterContract(provider, address) {

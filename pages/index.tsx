@@ -26,6 +26,8 @@ export default function Home() {
     null
   );
 
+  const [offerPrice, setOfferPrice] = useState(0);
+
   useEffect(() => {
     initializeBlockchain().then(({ provider, currentAccount }) => {
       setCurrentAccount(currentAccount);
@@ -35,20 +37,17 @@ export default function Home() {
 
   useEffect(() => {
     if (provider && currentAccount) {
-      setTokenContract(buildGreeterContract(provider, currentAccount));
+      const build = buildGreeterContract(provider, currentAccount);
+
+      setTokenContract(build);
+
+      build.getTiles().then((res) => setPixels(res));
     }
   }, [provider, currentAccount]);
 
   const isConnected = TokenContract;
 
-  if (isConnected) {
-    TokenContract.getTiles(0).then((res) => console.log(res));
-  }
-
-  const selected = useMemo(
-    () => (activePixel !== null ? pixels[activePixel] : null),
-    [activePixel, pixels]
-  );
+  const selected = activePixel !== null ? pixels[activePixel] : null;
 
   function handlePixelClick(event: React.MouseEvent<HTMLButtonElement>) {
     const { index } = event.currentTarget.dataset;
@@ -73,6 +72,22 @@ export default function Home() {
     );
   }
 
+  function handlePriceInput(event) {
+    setOfferPrice(event?.target.value);
+  }
+
+  function handleSubmit() {
+    console.log("submit");
+
+    TokenContract?.paintPixel(
+      activePixel,
+      selected?.r,
+      selected?.g,
+      selected?.b,
+      offerPrice
+    );
+  }
+
   return (
     <div>
       <Head>
@@ -90,7 +105,7 @@ export default function Home() {
               type="button"
               data-index={ind}
               style={{
-                width: "calc(100% / 32)",
+                width: "calc(100% / 25)",
                 background: `rgb(${pixel.r}, ${pixel.g}, ${pixel.b})`,
                 outline: "1px solid #eee",
                 aspectRatio: "1",
@@ -126,15 +141,16 @@ export default function Home() {
                   name="price"
                   className="text-sm border-gray-400"
                   min={selected.currentValue}
+                  onChange={handlePriceInput}
                 />
                 <p className="text-xs font-mono text-gray-400">
                   The more you offer, the better your chance of claiming the
                   final artwork is
                 </p>
               </div>
-              {/* <button type="submit" onClick={claimPixel}>
+              <button type="button" onClick={handleSubmit}>
                 Claim this
-              </button> */}
+              </button>
             </div>
           )}
         </div>
