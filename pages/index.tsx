@@ -1,25 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/dist/shared/lib/head";
 import { hexToRgb, rgbToHex } from "../utils/color";
-import PixelForm from "../components/PixelForm";
 import initializeBlockchain from "../blockchain/initializeBlockchain";
-import { utils } from "ethers";
-
 import TokenContract, { buildMfpContract } from "../blockchain/mfpContract";
 
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState<string | null>(null);
   const [provider, setProvider] = useState<any>(null);
-
-  const [activePixel, setActivePixel] = useState<number | null>(null);
   const [TokenContract, setTokenContract] = useState<TokenContract | null>(
     null
   );
 
+  const [activePixel, setActivePixel] = useState<number | null>(null);
   const [pixels, setPixels] = useState<Pixel[]>([]);
   const [maxMintable, setMaxMintable] = useState(0);
   const [currentId, setCurrentId] = useState(0);
-  const [history, setHistory] = useState<Pixel[]>([]);
+  const [history, setHistory] = useState<Pixel[][]>([]);
   const [offerPrice, setOfferPrice] = useState(0);
   const [minPrice, setMinPrice] = useState(0);
   const [feedback, setFeedback] = useState("");
@@ -39,14 +35,11 @@ export default function Home() {
 
       setTokenContract(build);
 
-      build.getTiles().then((res) => {
-        setPixels(res);
-        setHistory([res]);
-      });
+      build.getTiles().then((res) => setPixels(res));
       build.getMinPrice().then((res) => setMinPrice(Number(res)));
       build.getCurrentId().then((res) => setCurrentId(Number(res)));
       build.getMaxMintable().then((res) => setMaxMintable(Number(res)));
-      /* build.getTileById(currentId).then((res) => setHistory(res)); */
+      build.getTileById(currentId).then((res) => setHistory(res));
     }
   }, [provider, currentAccount]);
 
@@ -99,10 +92,10 @@ export default function Home() {
       setPixels(
         pixels.map((item, index) =>
           index === activePixel
-            ? {
+            ? ({
                 ...item,
                 owner: currentAccount,
-              }
+              } as Pixel)
             : item
         )
       );
@@ -125,7 +118,7 @@ export default function Home() {
               Motherfucking pixel
             </h1>
           </div>
-          <p className="font-pixel mt-4">
+          <p className="font-pixel p-4">
             NFT: <br />
             {currentId} / {maxMintable}
           </p>
@@ -153,7 +146,7 @@ export default function Home() {
             </>
           ) : (
             <div className="flex h-full w-full">
-              <p className="m-auto">it's loading</p>
+              <p className="m-auto font-pixel text-lg">loading the pixels...</p>
             </div>
           )}
         </div>
@@ -226,25 +219,33 @@ export default function Home() {
         <p className="font-pixel text-xl my-10 text-green-500">
           the history of this incredible thing
         </p>
-        {history.map((item) => (
-          <>
-            <p className="font-pixel">NFT #1</p>
-            <div className="mr-10 mb-10 w-80 h-80 flex flex-wrap">
-              {item.map((pixel, ind) => (
-                <div
-                  key={ind}
-                  data-index={ind}
-                  style={{
-                    width: "calc(100% / 16)",
-                    background: `rgb(${pixel.r}, ${pixel.g}, ${pixel.b})`,
-                    outline: "1px solid #eee",
-                    aspectRatio: "1",
-                  }}
-                />
-              ))}
-            </div>
-          </>
-        ))}
+        {}
+        {history.length === 0 && (
+          <p className="font-pixel text-xl my-10 text-green-500">
+            no nfts minted yet
+          </p>
+        )}
+        {history.map((item) => {
+          item.length > 0 && (
+            <>
+              <p className="font-pixel">NFT #1</p>
+              <div className="mr-10 mb-10 w-80 h-80 flex flex-wrap">
+                {item.map((pixel, ind) => (
+                  <div
+                    key={ind}
+                    data-index={ind}
+                    style={{
+                      width: "calc(100% / 16)",
+                      background: `rgb(${pixel.r}, ${pixel.g}, ${pixel.b})`,
+                      outline: "1px solid #eee",
+                      aspectRatio: "1",
+                    }}
+                  />
+                ))}
+              </div>
+            </>
+          );
+        })}
       </div>
     </div>
   );

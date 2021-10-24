@@ -36,14 +36,12 @@ export default class MfpContract {
     return  Number(await this.contract._currentId());
   }
 
-  async getTileById(currentId) {
-    const a = await  Promise.all([
-      [...Array(currentId)].map((id, index ) => this.contract.getTilesColorById(index))
+  async getTileById(currentId: number) {
+    const a = await Promise.all([
+      [...Array(currentId)].map(async (id, index ) => this.contract.getTilesColorById(index))
     ]);
 
-    console.log(a);
-
-    return a;
+    return a.filter((item) => item.length > 0);
   }
 
   async getTiles() {
