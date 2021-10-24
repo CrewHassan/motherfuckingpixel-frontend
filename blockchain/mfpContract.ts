@@ -7,7 +7,8 @@ const ABI = [
    "function paint(uint16 coordinate, uint8 r, uint8 g, uint8 b) public payable"  ,
    "function _minPrice() public view returns(uint256)",
    "function _maxMintable() public view returns(uint16)",
-   "function _currentId() public view returns(uint16)"
+   "function _currentId() public view returns(uint16)",
+   "function getNftSpentValue() public view returns (uint256)"
 ];
 
 export default class MfpContract {
@@ -34,6 +35,10 @@ export default class MfpContract {
 
   async getCurrentId() {
     return  Number(await this.contract._currentId());
+  }
+
+  async getSpentValue() {
+    return  ethers.utils.formatEther(await this.contract.getNftSpentValue());
   }
 
   async getTileById(currentId: number) {

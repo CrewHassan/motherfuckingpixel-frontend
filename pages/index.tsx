@@ -18,6 +18,7 @@ export default function Home() {
   const [history, setHistory] = useState<Pixel[][]>([]);
   const [offerPrice, setOfferPrice] = useState(0);
   const [minPrice, setMinPrice] = useState(0);
+  const [spentValue, setSpentValue] = useState(0);
   const [feedback, setFeedback] = useState("");
 
   const [edit, setEdit] = useState(null);
@@ -40,6 +41,7 @@ export default function Home() {
       build.getCurrentId().then((res) => setCurrentId(Number(res)));
       build.getMaxMintable().then((res) => setMaxMintable(Number(res)));
       build.getTileById(currentId).then((res) => setHistory(res));
+      build.getSpentValue().then((res) => setSpentValue(res));
     }
   }, [provider, currentAccount]);
 
@@ -121,6 +123,10 @@ export default function Home() {
           <p className="font-pixel p-4">
             NFT: <br />
             {currentId} / {maxMintable}
+          </p>
+          <p className="font-pixel p-4">
+            total traded: <br />
+            {spentValue}
           </p>
         </div>
         <div
