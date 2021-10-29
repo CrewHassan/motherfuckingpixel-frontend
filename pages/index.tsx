@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { ethers} from "ethers";
 import Head from "next/dist/shared/lib/head";
 import { hexToRgb, rgbToHex } from "../utils/color";
 import initializeBlockchain from "../blockchain/initializeBlockchain";
@@ -41,7 +42,7 @@ export default function Home() {
       build.getCurrentId().then((res) => setCurrentId(Number(res)));
       build.getMaxMintable().then((res) => setMaxMintable(Number(res)));
       build.getTileById(currentId).then((res) => setHistory(res));
-      build.getSpentValue().then((res) => setSpentValue(res));
+      build.getSpentValue().then((res) => setSpentValue(Number(res)));
     }
   }, [provider, currentAccount]);
 
@@ -59,6 +60,8 @@ export default function Home() {
   function handleColorInput(event: any) {
     const rgbColor = hexToRgb(event?.currentTarget?.value);
 
+    // TODO: check this function to direct access pixel instead of going
+    // through all of them
     setPixels(
       pixels.map((item, ind) =>
         ind === activePixel
@@ -83,6 +86,7 @@ export default function Home() {
       selected?.r,
       selected?.g,
       selected?.b,
+      1,
       offerPrice
     );
 
